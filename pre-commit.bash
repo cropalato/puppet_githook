@@ -75,3 +75,4 @@ fi
 msg_color "Isso e um test" critical
 msg_color "Isso e um test" 
 msg_color "Isso e um test" warning
+
