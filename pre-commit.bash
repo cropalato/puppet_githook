@@ -34,6 +34,18 @@ trap 'bash_traceback' ERR
 # propagate ERR trap handler functions, expansions and subshells
 set -o errtrace
 
+function msg_color() {
+    message="$1"
+    type=${2:-info}
+
+    if [[ "$type" == "critical" ]]; then
+        echo -e "\e[31m[Critical] ${message}\e[39m"
+    elif [[ "$type" == "warning" ]]; then
+        echo -e "\e[33m[Warning] ${message}\e[39m"
+    else
+        echo "[Info] ${message}"
+    fi
+}
 
 LOCAL_PATH=$(pwd)
 FULL_PATH_CMD=$(dirname "$(readlink -f $0)")
@@ -49,13 +61,17 @@ else
     against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 fi
 
-# Use git diff-index to check for whitespace errors
-echo "pre-commit: Testing for whitespace errors..."
-if ! git diff-index --check --cached $against
-then
-    echo "pre-commit: Aborting commit due to whitespace errors"
-    exit 1
-else
-    echo "pre-commit: No whitespace errors :)"
-    exit 0
-fi
+## Use git diff-index to check for whitespace errors
+#echo "pre-commit: Testing for whitespace errors..."
+#if ! git diff-index --check --cached $against
+#then
+#    echo "pre-commit: Aborting commit due to whitespace errors"
+#    exit 1
+#else
+#    echo "pre-commit: No whitespace errors :)"
+#    exit 0
+#fi
+
+msg_color "Isso e um test" critical
+msg_color "Isso e um test" 
+msg_color "Isso e um test" warning
