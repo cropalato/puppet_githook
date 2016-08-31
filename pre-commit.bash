@@ -34,21 +34,19 @@ trap 'bash_traceback' ERR
 # propagate ERR trap handler functions, expansions and subshells
 set -o errtrace
 
-function msg_color() {
-    message="$1"
-    type=${2:-info}
-
-    if [[ "$type" == "critical" ]]; then
-        echo -e "\e[31m[Critical] ${message}\e[39m"
-    elif [[ "$type" == "warning" ]]; then
-        echo -e "\e[33m[Warning] ${message}\e[39m"
-    else
-        echo "[Info] ${message}"
-    fi
+function info() {
+    echo -e "\e[32m[Info] ${1}\e[39m"
+}
+function warning() {
+    echo -e "\e[33m[Warning] ${1}\e[39m"
+}
+function critical() {
+    echo -e "\e[31m[Critical] ${1}\e[39m"
 }
 
 LOCAL_PATH=$(pwd)
 FULL_PATH_CMD=$(dirname "$(readlink -f $0)")
+info "$FULL_PATH_CMD"
 
 
 # Check if this is the initial commit
@@ -72,7 +70,55 @@ fi
 #    exit 0
 #fi
 
-msg_color "Isso e um test" critical
-msg_color "Isso e um test" 
-msg_color "Isso e um test" warning
+# list the files
+failure=0
+all_files=()
+
+# get the files
+files=()
+file_added=0
+for file in $(git diff-index --cached --name-only --diff-filter=ACMR HEAD); do
+    if ! [ -e "$file" ]; then
+        echo "[IGNORED] $file"
+        continue
+    fi
+
+    files+=($file)
+    all_files+=($file)
+    file_added=1
+done
+
+files_deleted=()
+file_deleted=0
+for file in $(git diff-index --cached --name-only --diff-filter=D HEAD); do
+    files_deleted+=($file)
+    all_files+=($file)
+    file_deleted=1
+done
+
+
+# SYNTAX CHECK
+if [ "$file_added" -eq "1" ] && [ "$failure" -eq "0" ]; then
+    echo
+    info "[CHECK] Checking the Syntax"
+    for file in "${files[@]}"; do
+        "$FULL_PATH_CMD/misc_scripts/file_syntax.sh" "$file" "$(pwd)" || failure=1
+
+        if [ "$failure" -eq 1 ]; then
+            break
+        fi
+    done
+
+    if [ "$failure" -eq "0" ]; then
+        info "[SUCESSS] The syntax check was successful"
+    fi
+fi
+
+# run our hooks
+if [ "$failure" -eq "1" ]; then
+    critical "[ERROR] Fix the errors below. The pre-commit hook has failed."
+    exit "$failure"
+fi
+
+exit 0
 
