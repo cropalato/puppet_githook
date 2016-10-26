@@ -25,7 +25,13 @@ FILE_TARGET="${FILE_PATH}/${FILE_NAME}"
 
 VALID_SYNTAX=0
 
+# You can define an environment variable to indicate which files should be tested as IPTABLE file. ex: IPTABLE_FILES="file1|files2"
+IPTABLE_FILES="+(${IPTABLE_FILES:-'IdontCare'})" 
+
 case "$FILE_NAME" in
+    $IPTABLE_FILES )
+        warning "Skiping iptable syntax check (the script is not available) for $FILE_TARGET."
+        ;;
     *\.yaml| *\.eyaml )
         if ! command -v ruby > /dev/null 2>&1;  then
             warning "Skiping syntax check (missing tool) for $FILE_TARGET."
