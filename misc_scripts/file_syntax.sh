@@ -28,6 +28,12 @@ VALID_SYNTAX=0
 # You can define an environment variable to indicate which files should be tested as IPTABLE file. ex: IPTABLE_FILES="file1|files2"
 IPTABLE_FILES="+(${IPTABLE_FILES:-'IdontCare'})" 
 
+# Skip test for spec folder
+if [[ $FILE_TARGET =~ ^.*modules/[^/]*/spec/.*$ ]]; then
+    warning "Skiping $FILE_TARGET (We will now validate files inside spec folder)."
+    exit 0
+fi
+
 case "$FILE_NAME" in
     $IPTABLE_FILES )
         warning "Skiping iptable syntax check (the script is not available) for $FILE_TARGET."
