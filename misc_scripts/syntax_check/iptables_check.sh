@@ -45,6 +45,8 @@ done
 PWD=$(dirname "$(readlink -f $0)")
 source "$PWD"/../utils.sh
 
+[ $# -gt 1 ] && info "To be able to validate the syntax, this script will run some comands as root using sudo. If you disagree, I can do nothing for you."
+
 ipset_file=$(basename $1 | sed 's/iptables/ipset/g')
 ipset_dir=$(dirname $1)
 ipset_rules_tmp=$(mktemp)

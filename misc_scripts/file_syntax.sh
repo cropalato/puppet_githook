@@ -25,8 +25,10 @@ FILE_TARGET="${FILE_PATH}/${FILE_NAME}"
 
 VALID_SYNTAX=0
 
+shopt -s extglob
 # You can define an environment variable to indicate which files should be tested as IPTABLE file. ex: IPTABLE_FILES="file1|files2"
-IPTABLE_FILES="+(${IPTABLE_FILES:-'IdontCare'})" 
+IPSET_FILES="+(${IPSET_FILES:-'ipset'})"
+IPTABLE_FILES="+(${IPTABLE_FILES:-'iptables'})"
 
 # Skip test for spec folder
 if [[ $FILE_TARGET =~ ^.*modules/[^/]*/spec/.*$ ]]; then
@@ -35,8 +37,17 @@ if [[ $FILE_TARGET =~ ^.*modules/[^/]*/spec/.*$ ]]; then
 fi
 
 case "$FILE_NAME" in
+    $IPSET_FILES )
+        if ! ${PWD}/syntax_check/ipset_check.sh $FILE_TARGET $VERBOSE; then
+            VALID_SYNTAX=1
+            critical "[Syntax] We found syntax error[s] in $FILE_TARGET"
+        fi
+        ;;
     $IPTABLE_FILES )
-        warning "Skiping iptable syntax check (the script is not available) for $FILE_TARGET."
+        if ! ${PWD}/syntax_check/iptables_check.sh $FILE_TARGET $VERBOSE; then
+            VALID_SYNTAX=1
+            critical "[Syntax] We found syntax error[s] in $FILE_TARGET"
+        fi
         ;;
     *\.yaml| *\.eyaml )
         if ! command -v ruby > /dev/null 2>&1;  then
