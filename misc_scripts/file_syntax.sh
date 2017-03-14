@@ -90,7 +90,7 @@ case "$FILE_NAME" in
         fi
         ;;
     *\.py )
-        if ! command -v ruby > /dev/null 2>&1;  then
+        if ! command -v python2 > /dev/null 2>&1;  then
             warning "Skiping syntax check (missing tool) for $FILE_TARGET."
         else
             if ! ${PWD}/syntax_check/python_syntax_check.sh $FILE_TARGET $VERBOSE; then
